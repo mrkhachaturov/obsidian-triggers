@@ -26,6 +26,6 @@
     "inlineSources": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts", "vitest.config.ts"],
+  "include": ["src/**/*.ts", "tests/**/*.ts"],
   "exclude": ["node_modules", "main.js"]
 }

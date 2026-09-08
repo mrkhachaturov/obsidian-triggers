@@ -1,0 +1,8 @@
+node_modules/
+
+# Build output. Obsidian loads it, a release attaches it, but it is generated
+# from src/ and never edited by hand - so it does not belong in git.
+main.js
+main.js.map
+
+.DS_Store

@@ -1,0 +1,10 @@
+{
+  "id": "triggers",
+  "name": "Triggers",
+  "version": "0.0.1",
+  "minAppVersion": "1.13.0",
+  "description": "Run commands when you enter a context - a note, a folder, a base, a view. Pairs with QuickAdd, Templater and Commander.",
+  "author": "Ruben Khachaturov",
+  "authorUrl": "https://github.com/mrkhachaturov",
+  "isDesktopOnly": false
+}

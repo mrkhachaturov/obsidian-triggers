@@ -20,7 +20,7 @@ import type { Rule, Step } from '../../src/types/rule';
 import { rulePage } from '../../src/ui/rulePage';
 import { ChoiceSuggest, CommandSuggest } from '../../src/ui/suggesters';
 import { editRule, findRule } from '../../src/utils/tree';
-import { commandStep, group, makeContext, makeRule, makeView, path } from '../factories';
+import { commandStep, group, localApp, makeContext, makeRule, makeView, path } from '../factories';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -52,7 +52,7 @@ async function fixture(steps: Step[] = []) {
       }),
     },
     choices: { choices: () => [{ id: 'choice', name: 'Capture', type: 'Macro' }] },
-    trace: new TraceService(),
+    trace: new TraceService(localApp()),
     reader: { current: currentContext, onChange: () => () => undefined },
     version: 'test',
     refresh: () => undefined,

@@ -95,10 +95,19 @@ function unload(): void {
   for (const cleanup of lifecycle.cleanups.splice(0).reverse()) cleanup();
 }
 
-function createPlugin(): { plugin: TriggersPlugin; workspace: Workspace } {
+function createPlugin(recording = false): { plugin: TriggersPlugin; workspace: Workspace } {
   const workspace = new Workspace();
-  // The real App has no constructor outside Obsidian; retain the methods actually crossed.
-  const app = { workspace } as unknown as App;
+  /* The real App has no constructor outside Obsidian; retain the methods actually
+   * crossed, including the device-local store the trace switch is kept in. */
+  const local = new Map<string, unknown>(recording ? [['triggers:recording', true]] : []);
+  const app = {
+    workspace,
+    loadLocalStorage: (key: string) => local.get(key) ?? null,
+    saveLocalStorage: (key: string, data: unknown) => {
+      if (data === null) local.delete(key);
+      else local.set(key, data);
+    },
+  } as unknown as App;
   const manifest: PluginManifest = {
     id: 'triggers',
     name: 'Triggers',
@@ -115,7 +124,6 @@ beforeEach(() => {
   lifecycle.tabs.length = 0;
   lifecycle.loadData.mockResolvedValue(null);
   lifecycle.saveData.mockResolvedValue(undefined);
-  window.localStorage.clear();
   vi.spyOn(console, 'debug').mockImplementation(() => undefined);
 });
 
@@ -203,8 +211,7 @@ describe('public plugin API', () => {
   });
 
   it('checks command availability without executing and runs explicitly only with context', async () => {
-    window.localStorage.setItem('triggers:recording', 'true');
-    const { plugin, workspace } = createPlugin();
+    const { plugin, workspace } = createPlugin(true);
     await plugin.onload();
     const command = lifecycle.commands.find((entry) => entry.id === 'run-here');
     const check = command?.checkCallback;

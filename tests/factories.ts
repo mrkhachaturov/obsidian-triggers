@@ -1,3 +1,4 @@
+import type { App } from 'obsidian';
 /*
  * Triggers - Plugin for Obsidian
  * Copyright (c) 2026 Ruben Khachaturov
@@ -90,4 +91,16 @@ export function commandStep(commandId: string): Step {
 
 export function quickAddStep(choiceId: string, choiceName: string): Step {
   return { kind: 'quickadd', choiceId, choiceName };
+}
+
+/* The two methods TraceService uses; Obsidian's own device-local store. */
+export function localApp(): App {
+  const store = new Map<string, unknown>();
+  return {
+    loadLocalStorage: (key: string) => store.get(key) ?? null,
+    saveLocalStorage: (key: string, data: unknown) => {
+      if (data === null) store.delete(key);
+      else store.set(key, data);
+    },
+  } as unknown as App;
 }

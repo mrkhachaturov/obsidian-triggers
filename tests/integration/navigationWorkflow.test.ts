@@ -12,7 +12,7 @@ import { RuleRunner } from '../../src/services/RuleRunner';
 import { RuleStore } from '../../src/services/RuleStore';
 import { TraceService } from '../../src/services/TraceService';
 import { type PluginData, SCHEMA_VERSION, type ViewRules } from '../../src/types/rule';
-import { commandStep, group, makeRule, makeView, path } from '../factories';
+import { commandStep, group, localApp, makeRule, makeView, path } from '../factories';
 
 type Leaf = { getViewState(): ViewState };
 type WorkspaceEvent = 'active-leaf-change' | 'layout-change';
@@ -75,7 +75,7 @@ async function workflow(views: ViewRules[]) {
   } as unknown as Plugin;
   const store = new RuleStore(plugin);
   await store.load();
-  const trace = new TraceService();
+  const trace = new TraceService(localApp());
   trace.setRecording(true);
   const watcher = new ContextWatcher(plugin);
   const runner = new RuleRunner(app, () => store, trace, [new CommandHandler(app)]);
@@ -109,9 +109,7 @@ async function workflow(views: ViewRules[]) {
   };
 }
 
-afterEach(() => {
-  window.localStorage.removeItem('triggers:recording');
-});
+afterEach(() => {});
 
 describe('navigation through collaborating services', () => {
   it('coalesces duplicate workspace wakes, scopes views and traces a blank draft as rejected', async () => {

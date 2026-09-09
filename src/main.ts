@@ -22,7 +22,7 @@ import { TriggersSettingTab } from './ui/settings';
  * them reaches back into the plugin for a sibling. */
 export default class TriggersPlugin extends Plugin {
   private readonly store = new RuleStore(this);
-  private readonly trace = new TraceService();
+  private readonly trace = new TraceService(this.app);
   private watcher: ContextWatcher | null = null;
 
   readonly api = {

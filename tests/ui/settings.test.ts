@@ -23,7 +23,7 @@ import { ViewTypeSuggest } from '../../src/ui/suggesters';
 import { viewTypes } from '../../src/ui/viewTypes';
 import { write } from '../../src/utils/packageTransfer';
 import { ruleKey } from '../../src/utils/ruleControls';
-import { makeRule, makeView } from '../factories';
+import { localApp, makeRule, makeView } from '../factories';
 
 async function setup(
   views: ViewRules[] = [],
@@ -44,7 +44,7 @@ async function setup(
   } as unknown as Plugin;
   const store = new RuleStore(plugin);
   await store.load();
-  const trace = new TraceService();
+  const trace = new TraceService(localApp());
   const tab = new TriggersSettingTab(plugin, {
     editor: store,
     trace,
@@ -111,7 +111,6 @@ async function saved(writes: readonly PluginData[], count: number): Promise<void
 
 afterEach(() => {
   document.body.replaceChildren();
-  window.localStorage.clear();
   vi.restoreAllMocks();
 });
 

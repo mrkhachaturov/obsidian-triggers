@@ -3,7 +3,7 @@
   "name": "Triggers",
   "version": "0.1.0",
   "minAppVersion": "1.13.0",
-  "description": "Run commands when you enter a context - a note, a folder, a base, a view. Pairs with QuickAdd, Templater and Commander.",
+  "description": "Make Obsidian react to what you open. Automatically run commands and QuickAdd choices for Markdown, Canvas, Bases, and Excalidraw, with rules based on file paths and note properties.",
   "author": "Ruben Khachaturov",
   "authorUrl": "https://github.com/mrkhachaturov",
   "isDesktopOnly": false

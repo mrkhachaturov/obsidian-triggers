@@ -14,6 +14,7 @@ import type { Context } from '../../src/types/context';
 import type { Rule, Step, ViewRules } from '../../src/types/rule';
 import {
   commandStep,
+  localApp,
   makeCondition,
   makeContext,
   makeRule,
@@ -98,7 +99,7 @@ function runnerFor(rules: Rule[], handler: IStepHandler, recording = true) {
 }
 
 function runnerForViews(views: ViewRules[], handler: IStepHandler, recording = true) {
-  const trace = new TraceService();
+  const trace = new TraceService(localApp());
   trace.setRecording(recording);
   const runner = new RuleRunner(fakeApp(), () => ({ views: () => views }), trace, [handler]);
   const reader = new FakeReader();
@@ -236,7 +237,7 @@ describe('RuleRunner', () => {
  * changes. See docs/rule-format.md. */
 describe('RuleRunner variables', () => {
   function runWith(handler: IStepHandler, cache: unknown, rules: Rule[]) {
-    const trace = new TraceService();
+    const trace = new TraceService(localApp());
     const app = {
       vault: { getFileByPath: () => ({ path: 'Atlas/Note.md' }) },
       metadataCache: { getFileCache: () => cache },
@@ -293,7 +294,7 @@ describe('RuleRunner variables', () => {
   it('leaves the note alone for a rule with no QuickAdd action', () => {
     const handler = new RecordingHandler();
     let reads = 0;
-    const trace = new TraceService();
+    const trace = new TraceService(localApp());
     const app = {
       vault: {
         getFileByPath: () => {

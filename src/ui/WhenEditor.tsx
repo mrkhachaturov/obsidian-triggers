@@ -508,79 +508,95 @@ function TestRow({ row, test, viewType, tree, onEdit }: RowProps & { readonly te
   const valueMissing = test.value.trim().length === 0;
   const write = (next: Filter): void => onEdit(replaceAt(tree, row.path, next));
 
-  return (
+  const subject = (
     <>
-      <div class="tr-subject">
-        <select
-          class="dropdown tr-field"
-          aria-label={t(spec.label)}
-          value={test.field}
-          onChange={(event) => write(newTest(value(event) as Field))}
-        >
-          {offered(viewType).map((entry) => (
-            <option key={entry.field} value={entry.field}>
-              {t(entry.label)}
-            </option>
-          ))}
-        </select>
-        {spec.key ? (
-          <div class="tr-input-stack">
-            <input
-              type="text"
-              class="tr-key"
-              placeholder={strings.when.property}
-              aria-label={strings.when.property}
-              aria-invalid={keyTouched && keyMissing}
-              aria-describedby={keyTouched && keyMissing ? keyErrorId : undefined}
-              onBlur={() => setKeyTouched(true)}
-              value={'key' in test ? test.key : ''}
-              onInput={(event) => write({ ...test, key: value(event) } as Test)}
-            />
-            {keyTouched && keyMissing ? (
-              <span id={keyErrorId} class="tr-field-error" role="status">
-                {strings.when.keyRequired}
-              </span>
-            ) : null}
-          </div>
-        ) : null}
-      </div>
-      <div class="tr-comparison">
-        <select
-          class="dropdown tr-op"
-          aria-label={strings.when.operator}
-          value={test.op}
-          onChange={(event) => write({ ...test, op: value(event), value: '' } as Test)}
-        >
-          {spec.ops.map((op) => (
-            <option key={op} value={op}>
-              {t(OPERATOR.get(op)?.label ?? 'ops.is')}
-            </option>
-          ))}
-        </select>
-        {OPERATOR.get(test.op)?.value === true ? (
-          <div class="tr-input-stack">
-            <input
-              type="text"
-              class="tr-value"
-              placeholder={t(spec.hint)}
-              aria-label={t(spec.hint)}
-              aria-invalid={valueTouched && valueMissing}
-              aria-describedby={valueTouched && valueMissing ? valueErrorId : undefined}
-              onBlur={() => setValueTouched(true)}
-              value={test.value}
-              onInput={(event) => write({ ...test, value: value(event) })}
-            />
-            {valueTouched && valueMissing ? (
-              <span id={valueErrorId} class="tr-field-error" role="status">
-                {strings.when.valueRequired}
-              </span>
-            ) : null}
-            {looksLikePattern(test.value) ? (
-              <div class="tr-regex-hint">{strings.when.regexHint}</div>
-            ) : null}
-          </div>
-        ) : null}
-      </div>
+      <select
+        class="dropdown tr-field"
+        aria-label={t(spec.label)}
+        value={test.field}
+        onChange={(event) => write(newTest(value(event) as Field))}
+      >
+        {offered(viewType).map((entry) => (
+          <option key={entry.field} value={entry.field}>
+            {t(entry.label)}
+          </option>
+        ))}
+      </select>
+      {spec.key ? (
+        <div class="tr-input-stack">
+          <input
+            type="text"
+            class="tr-key"
+            placeholder={strings.when.property}
+            aria-label={strings.when.property}
+            aria-invalid={keyTouched && keyMissing}
+            aria-describedby={keyTouched && keyMissing ? keyErrorId : undefined}
+            onBlur={() => setKeyTouched(true)}
+            value={'key' in test ? test.key : ''}
+            onInput={(event) => write({ ...test, key: value(event) } as Test)}
+          />
+          {keyTouched && keyMissing ? (
+            <span id={keyErrorId} class="tr-field-error" role="status">
+              {strings.when.keyRequired}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+    </>
+  );
+  const comparison = (
+    <>
+      <select
+        class="dropdown tr-op"
+        aria-label={strings.when.operator}
+        value={test.op}
+        onChange={(event) => write({ ...test, op: value(event), value: '' } as Test)}
+      >
+        {spec.ops.map((op) => (
+          <option key={op} value={op}>
+            {t(OPERATOR.get(op)?.label ?? 'ops.is')}
+          </option>
+        ))}
+      </select>
+      {OPERATOR.get(test.op)?.value === true ? (
+        <div class="tr-input-stack">
+          <input
+            type="text"
+            class="tr-value"
+            placeholder={t(spec.hint)}
+            aria-label={t(spec.hint)}
+            aria-invalid={valueTouched && valueMissing}
+            aria-describedby={valueTouched && valueMissing ? valueErrorId : undefined}
+            onBlur={() => setValueTouched(true)}
+            value={test.value}
+            onInput={(event) => write({ ...test, value: value(event) })}
+          />
+          {valueTouched && valueMissing ? (
+            <span id={valueErrorId} class="tr-field-error" role="status">
+              {strings.when.valueRequired}
+            </span>
+          ) : null}
+          {looksLikePattern(test.value) ? (
+            <div class="tr-regex-hint">{strings.when.regexHint}</div>
+          ) : null}
+        </div>
+      ) : null}
+    </>
+  );
+
+  /* A property row is a grid and these controls are its cells. Wrapping them
+   * would need `display: contents` on the wrapper, which the directory's
+   * scanner reports as only partly supported; a fragment is the same placement
+   * with no element and no CSS. */
+  return test.field === 'property' ? (
+    <>
+      {subject}
+      {comparison}
+    </>
+  ) : (
+    <>
+      <div class="tr-subject">{subject}</div>
+      <div class="tr-comparison">{comparison}</div>
     </>
   );
 }

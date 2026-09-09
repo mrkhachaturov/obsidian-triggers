@@ -260,10 +260,6 @@
   grid-template-columns: max-content minmax(0, 1fr);
 }
 
-.tr-condition-fields[data-field='property'] > :is(.tr-subject, .tr-comparison) {
-  display: contents;
-}
-
 .tr-condition-fields[data-field='property'] .tr-op {
   grid-column: 1;
 }

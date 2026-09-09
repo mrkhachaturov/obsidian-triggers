@@ -124,8 +124,27 @@ describe('a condition row', () => {
     expect(row.querySelector('.tr-condition-fields > .tr-comparison > .tr-op')).not.toBeNull();
   });
 
-  it('keeps the property name with its field and the value with its operator', () => {
+  /* A property row is the grid itself: field and operator in the first column,
+   * the name and the value in the second. The controls are its cells, so they
+   * are direct children - a wrapper here would need `display: contents`. */
+  it('lays a property row out as four cells, field and operator first', () => {
     const { el } = draw(group('and', property('status', 'is', 'open')));
+    const fields = control<HTMLElement>(rowAt(el, 0), '.tr-condition-fields');
+    expect(fields.dataset.field).toBe('property');
+    expect(fields.querySelector('.tr-subject, .tr-comparison')).toBeNull();
+    expect([...fields.children].map((child) => child.className)).toEqual([
+      'dropdown tr-field',
+      'tr-input-stack',
+      'dropdown tr-op',
+      'tr-input-stack',
+    ]);
+    expect(fields.querySelector('.tr-input-stack > .tr-key')).not.toBeNull();
+    expect(fields.querySelector('.tr-input-stack > .tr-value')).not.toBeNull();
+  });
+
+  /* Every other field keeps the two groups, which is what the flex row wraps. */
+  it('keeps a path row in its subject and comparison groups', () => {
+    const { el } = draw(group('and', { field: 'path', op: 'is', value: 'Atlas' }));
     const fields = control<HTMLElement>(rowAt(el, 0), '.tr-condition-fields');
     expect([...fields.children].map((child) => child.className)).toEqual([
       'tr-subject',
@@ -134,7 +153,6 @@ describe('a condition row', () => {
     const subject = control<HTMLElement>(fields, '.tr-subject');
     const comparison = control<HTMLElement>(fields, '.tr-comparison');
     expect(subject.firstElementChild?.classList.contains('tr-field')).toBe(true);
-    expect(subject.querySelector('.tr-input-stack > .tr-key')).not.toBeNull();
     expect(comparison.firstElementChild?.classList.contains('tr-op')).toBe(true);
     expect(comparison.querySelector('.tr-input-stack > .tr-value')).not.toBeNull();
   });

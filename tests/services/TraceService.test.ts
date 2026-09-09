@@ -6,16 +6,20 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TraceService } from '../../src/services/TraceService';
+import { localApp } from '../factories';
 
 const trace = { at: 10, context: null, rules: [], elapsedMs: 1 };
 const report = { at: 20, level: 'warning' as const, message: 'Unavailable command' };
 
-beforeEach(() => window.localStorage.clear());
+let app = localApp();
+beforeEach(() => {
+  app = localApp();
+});
 afterEach(() => vi.restoreAllMocks());
 
 describe('TraceService retention and recording', () => {
   it('always retains reports but only records navigation after opting in', () => {
-    const service = new TraceService();
+    const service = new TraceService(app);
     service.record(trace);
     service.receive(report);
     expect(service.list()).toEqual([{ kind: 'report', ...report }]);
@@ -30,7 +34,7 @@ describe('TraceService retention and recording', () => {
   });
 
   it('bounds the combined log at 200 newest entries and returns independent list snapshots', () => {
-    const service = new TraceService();
+    const service = new TraceService(app);
     for (let at = 0; at < 205; at++) service.receive({ ...report, at });
     const snapshot = service.list();
     expect(snapshot).toHaveLength(200);
@@ -44,24 +48,26 @@ describe('TraceService retention and recording', () => {
   });
 
   it('persists recording preference across instances without persisting entries', () => {
-    const first = new TraceService();
+    const first = new TraceService(app);
     first.setRecording(true);
     first.record(trace);
-    const second = new TraceService();
+    const second = new TraceService(app);
     expect(second.recording).toBe(true);
     expect(second.list()).toEqual([]);
     second.setRecording(false);
-    expect(new TraceService().recording).toBe(false);
+    expect(new TraceService(app).recording).toBe(false);
   });
 
-  it('keeps working when local storage is denied for reads and writes', () => {
-    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
-      throw new Error('denied');
-    });
-    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
-      throw new Error('quota');
-    });
-    const service = new TraceService();
+  it('keeps working when the device store is denied for reads and writes', () => {
+    const denied = {
+      loadLocalStorage: () => {
+        throw new Error('denied');
+      },
+      saveLocalStorage: () => {
+        throw new Error('quota');
+      },
+    } as unknown as ConstructorParameters<typeof TraceService>[0];
+    const service = new TraceService(denied);
     expect(service.recording).toBe(false);
     expect(() => service.setRecording(true)).not.toThrow();
     service.record(trace);
@@ -70,7 +76,7 @@ describe('TraceService retention and recording', () => {
   });
 
   it('isolates broken subscribers and emits clear only when entries actually change', () => {
-    const service = new TraceService();
+    const service = new TraceService(app);
     const broken = service.onChange(() => {
       throw new Error('closed window');
     });
@@ -89,7 +95,7 @@ describe('TraceService retention and recording', () => {
   });
 
   it('publishes updates after state changes and stops notifying detached listeners', () => {
-    const service = new TraceService();
+    const service = new TraceService(app);
     const changed = vi.fn(() => ({ recording: service.recording, length: service.list().length }));
     const unsubscribe = service.onChange(changed);
     service.record(trace);

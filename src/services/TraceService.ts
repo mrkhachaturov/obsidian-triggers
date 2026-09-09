@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+import type { App } from 'obsidian';
 import type { ITraceLog } from '../interfaces/ITraceLog';
 import type { ILogger, Report } from '../logging/ILogger';
 import type { LogEntry, TraceEntry } from '../types/trace';
@@ -24,8 +25,14 @@ const STORAGE_KEY = 'triggers:recording';
  */
 export class TraceService implements ILogger, ITraceLog {
   private readonly entries: LogEntry[] = [];
-  private tracing = readFlag();
+  private readonly app: App;
+  private tracing: boolean;
   private readonly listeners = new Set<() => void>();
+
+  constructor(app: App) {
+    this.app = app;
+    this.tracing = readFlag(app);
+  }
 
   receive(report: Report): void {
     this.push({ kind: 'report', at: report.at, level: report.level, message: report.message });
@@ -39,7 +46,7 @@ export class TraceService implements ILogger, ITraceLog {
   setRecording(on: boolean): void {
     if (this.tracing === on) return;
     this.tracing = on;
-    writeFlag(on);
+    writeFlag(this.app, on);
     this.changed();
   }
 
@@ -83,18 +90,21 @@ export class TraceService implements ILogger, ITraceLog {
   }
 }
 
-/* Storage can be unavailable or refuse a write; neither is a reason to fail. */
-function readFlag(): boolean {
+/* Obsidian's own device-local store, not `window.localStorage`: it is namespaced
+ * per vault, and the directory's scanner reports raw web storage. The switch
+ * still belongs here rather than in `data.json` - it is for the machine being
+ * debugged on, and must not sync to the others. */
+function readFlag(app: App): boolean {
   try {
-    return window.localStorage.getItem(STORAGE_KEY) === 'true';
+    return app.loadLocalStorage(STORAGE_KEY) === true;
   } catch {
     return false;
   }
 }
 
-function writeFlag(on: boolean): void {
+function writeFlag(app: App, on: boolean): void {
   try {
-    window.localStorage.setItem(STORAGE_KEY, String(on));
+    app.saveLocalStorage(STORAGE_KEY, on ? true : null);
   } catch {
     /* A preference that could not be remembered still applies to this session. */
   }

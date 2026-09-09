@@ -29,6 +29,19 @@ release where those four disagree.
 
 ## Unreleased
 
+## [0.1.1] - 2026-09-09
+
+### Changed
+
+- The plugin's own description, and a stylesheet check that runs the same ruleset the community
+  directory scans with, so its warnings are answered before a release rather than after one.
+- The trace switch is kept through Obsidian's own device-local storage instead of the browser's.
+
+### Fixed
+
+- A property condition no longer relies on `display: contents`, which the directory reports as only
+  partly supported on the engine it lints against.
+
 ## [0.1.0] - 2026-09-09
 
 ### Added

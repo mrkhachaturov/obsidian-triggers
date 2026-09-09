@@ -1,0 +1,464 @@
+/*
+ * Triggers - Plugin for Obsidian
+ * Copyright (c) 2026 Ruben Khachaturov
+ * SPDX-License-Identifier: MIT
+ */
+
+.tr-manage-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-4-1);
+  margin-bottom: var(--size-4-4);
+}
+
+.tr-manage-row {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-2);
+}
+
+.tr-manage-icon {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+}
+
+.tr-manage-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.tr-manage-action:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.tr-manage-empty {
+  color: var(--text-muted);
+  padding: var(--size-4-2) 0;
+}
+
+.tr-manage-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--size-4-2);
+}
+
+.tr-manage-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tr-transfer-text {
+  width: 100%;
+  min-height: 8em;
+  margin-bottom: var(--size-4-3);
+  font-family: var(--font-monospace);
+  resize: vertical;
+}
+
+.tr-transfer-status {
+  color: var(--text-muted);
+  margin-bottom: var(--size-4-3);
+}
+
+.tr-hidden {
+  display: none;
+}
+
+/* A part of the screen that failed to draw says so where it would have been,
+ * rather than taking the rest of the settings with it. */
+.tr-island-failed {
+  padding: var(--size-4-2);
+  color: var(--text-error);
+}
+
+/* The When editor is a Preact island: it owns the whole row it is mounted in,
+ * so the row gives up the two columns a setting normally has. Everything the
+ * island draws is scoped under its own container. */
+.tr-when-host .setting-item-control {
+  display: block;
+  width: 100%;
+}
+
+/* The control column is aligned to its right edge, which is where a control
+ * belongs and text does not: the island reads from the start of the line. */
+.tr-when {
+  --tr-control-size: calc(var(--size-4-8) + var(--size-4-3));
+  container-type: inline-size;
+  min-width: 0;
+  text-align: start;
+}
+
+.tr-when :is(button, select, input[type='text']) {
+  min-height: var(--tr-control-size);
+}
+
+.tr-when-help, .tr-expression-preview {
+  margin-block: var(--size-4-4) 0;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.tr-when :is(.tr-when-help, .tr-expression-preview) summary {
+  cursor: pointer;
+  width: fit-content;
+  max-width: 100%;
+  min-height: var(--tr-control-size);
+  padding: var(--size-4-2) var(--size-4-1);
+  border-radius: var(--radius-s);
+  line-height: var(--line-height-normal);
+}
+
+.tr-help-content {
+  padding-top: var(--size-4-2);
+  line-height: var(--line-height-normal);
+}
+
+.tr-when-examples {
+  margin: 0;
+  padding: 0;
+}
+
+.tr-when-examples > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: var(--size-4-2) var(--size-4-4);
+  padding-block: var(--size-4-3);
+}
+
+.tr-when-examples > div + div {
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.tr-when-examples dt {
+  color: var(--text-normal);
+  font-weight: var(--font-medium);
+}
+
+.tr-when-examples dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.tr-help-connections {
+  margin-block: var(--size-4-4);
+}
+
+.tr-regex-help {
+  border-top: 1px solid var(--background-modifier-border);
+  padding-top: var(--size-4-2);
+}
+
+.tr-regex-help p {
+  margin-block: var(--size-4-2);
+}
+
+.tr-regex-help code {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  padding: var(--size-4-1) var(--size-4-2);
+  border-radius: var(--radius-s);
+  background: var(--background-primary);
+  color: var(--text-normal);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@container (width < 480px) {
+  .tr-when-examples > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--size-4-1);
+  }
+}
+
+.tr-filter {
+  container-type: inline-size;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  background: var(--background-primary);
+  margin-block: var(--size-4-2);
+  min-width: 0;
+}
+
+.tr-filter-group {
+  background: var(--background-secondary);
+}
+
+.tr-filter[data-selected='true'] {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 1px;
+}
+
+.tr-when-row {
+  display: grid;
+  grid-template-columns: var(--tr-control-size) minmax(0, 1fr) var(--tr-control-size);
+  gap: var(--size-4-2);
+  align-items: start;
+  padding: var(--size-4-3);
+  border-radius: var(--radius-m);
+}
+
+.tr-row-handle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--size-4-2);
+}
+
+.tr-when .tr-row-handle input[type='checkbox'] {
+  margin: var(--size-4-2);
+}
+
+.tr-when select.dropdown {
+  flex: 0 0 auto;
+  width: max-content;
+  min-width: max-content;
+  max-width: none;
+  padding-inline: var(--size-4-2) calc(var(--size-4-8) + var(--size-4-2));
+  text-align: start;
+}
+
+.tr-when .tr-join {
+  display: block;
+  margin-block: var(--size-4-1);
+  margin-inline-start: var(--size-4-3);
+  color: var(--text-muted);
+}
+
+.tr-condition-fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  gap: var(--size-4-2);
+  min-width: 0;
+}
+
+.tr-subject,
+.tr-comparison {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  gap: var(--size-4-2);
+  min-width: 0;
+}
+
+.tr-condition-fields .tr-subject {
+  flex: 0 0 auto;
+}
+
+.tr-condition-fields .tr-comparison {
+  flex: 1 1 18em;
+}
+
+.tr-condition-fields[data-field='property'] {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+}
+
+.tr-condition-fields[data-field='property'] > :is(.tr-subject, .tr-comparison) {
+  display: contents;
+}
+
+.tr-condition-fields[data-field='property'] .tr-op {
+  grid-column: 1;
+}
+
+.tr-condition-fields :is(.tr-field, .tr-op) {
+  justify-self: start;
+}
+
+.tr-input-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-4-1);
+  flex: 1 1 10em;
+  min-width: 0;
+}
+
+.tr-condition-fields :is(.tr-key, .tr-value) {
+  min-width: 0;
+  width: 100%;
+}
+
+.tr-group-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--size-4-2);
+  min-height: var(--tr-control-size);
+  min-width: 0;
+}
+
+.tr-group-label {
+  flex: 1;
+  font-weight: var(--font-semibold);
+}
+
+.tr-group-children {
+  margin: 0 var(--size-4-3) var(--size-4-3);
+  padding-inline-start: var(--size-4-3);
+  border-inline-start: 2px solid var(--background-modifier-border);
+}
+
+.tr-legacy-negation {
+  flex-basis: 100%;
+  grid-column: 1 / -1;
+  color: var(--text-warning);
+  font-size: var(--font-ui-smaller);
+}
+
+.tr-grip {
+  cursor: grab;
+  color: var(--text-faint);
+  touch-action: none;
+}
+
+.tr-dragging {
+  box-shadow: var(--shadow-s);
+  cursor: grabbing;
+}
+
+.tr-when-row[data-drop-target='true'][data-drop-kind='inside'] {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: -2px;
+  background: var(--background-modifier-hover);
+}
+
+.tr-when-row[data-drop-target='true'][data-drop-kind='before'] {
+  box-shadow: inset 0 2px var(--interactive-accent);
+}
+
+.tr-when-row[data-drop-target='true'][data-drop-kind='after'] {
+  box-shadow: inset 0 -2px var(--interactive-accent);
+}
+
+.tr-icon {
+  display: inline-flex;
+}
+
+.tr-when-row .tr-when-action {
+  flex: 0 0 auto;
+  width: var(--tr-control-size);
+  min-width: var(--tr-control-size);
+  min-height: var(--tr-control-size);
+}
+
+.tr-when-row .tr-row-menu {
+  color: var(--text-muted);
+}
+
+.tr-regex-hint, .tr-field-error {
+  overflow-wrap: anywhere;
+  font-size: var(--font-ui-smaller);
+}
+
+.tr-regex-hint {
+  color: var(--text-warning);
+}
+
+.tr-field-error {
+  color: var(--text-error);
+}
+
+.tr-when input[aria-invalid='true'] {
+  border-color: var(--text-error);
+}
+
+.tr-when .tr-when-empty {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.tr-when-empty p {
+  margin-block: 0 var(--size-4-2);
+}
+
+.tr-when-empty p:first-child {
+  color: var(--text-normal);
+}
+
+.tr-when .tr-when-add,
+.tr-when-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--size-4-2);
+  padding-block: var(--size-4-2);
+}
+
+.tr-when-add button,
+.tr-when-toolbar button {
+  height: auto;
+  white-space: normal;
+  text-align: start;
+}
+
+.tr-when .tr-undo {
+  display: block;
+  margin-top: var(--size-4-2);
+  padding-inline: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.tr-expression-preview code {
+  display: block;
+  padding-block: var(--size-4-2);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--text-normal);
+}
+
+.tr-selection-hint {
+  margin: 0;
+  padding-block: var(--size-4-2);
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.tr-when-row input::placeholder {
+  color: var(--text-faint);
+}
+
+.tr-manage-modal button:focus-visible,
+.tr-when :is(select, input, button, summary):focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+}
+
+@container (width < 480px) {
+  .tr-when-row .tr-condition-fields {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .tr-when-row .tr-group-heading {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .tr-when-row .tr-row-menu {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .tr-condition-fields[data-field='property'] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tr-condition-fields[data-field='property'] > :is(.tr-subject, .tr-comparison) {
+    display: flex;
+  }
+}
+
+.tr-log-entries {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}

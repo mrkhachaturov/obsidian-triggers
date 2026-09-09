@@ -30,7 +30,7 @@ jobs:
           version: 2026.9.3
           cache: false  # zizmor cache-poisoning: a publishing run restores nothing
       - name: Install locked dependencies
-        run: mise run bootstrap
+        run: mise deps
 
       - name: Check the version against the changelog and the release files
         run: mise run test:release

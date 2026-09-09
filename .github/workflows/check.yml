@@ -25,6 +25,6 @@ jobs:
         with:
           version: 2026.9.3
       - name: Install locked dependencies
-        run: mise run bootstrap
+        run: mise deps
       - name: Run every gate
         run: mise run check

@@ -59,6 +59,7 @@ depends = [
   "test:release",
   "test:strings",
   "test:styles",
+  "test:scanner",
   "test:docs",
   # Last: the production build is what a release attaches, and a gate that never
   # builds lets a release ship without one.

@@ -1,7 +1,7 @@
 {
   "id": "triggers",
   "name": "Triggers",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "minAppVersion": "1.13.0",
   "description": "Make your vault react to what you open. Automatically run commands and QuickAdd choices for Markdown, Canvas, Bases, and Excalidraw, with rules based on file paths and note properties.",
   "author": "Ruben Khachaturov",

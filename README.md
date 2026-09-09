@@ -5,6 +5,8 @@ Runs your Obsidian commands when you open something.
 A rule says where — a note, a folder, a Base, a view, a frontmatter property — and what to run when
 you get there. Any command from the palette, or a QuickAdd choice with the context handed to it.
 
+![A rule running its commands when a note is opened](.github/assets/rules-in-action.gif)
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 ## Contents
